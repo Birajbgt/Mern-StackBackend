@@ -1,36 +1,56 @@
-//  Importing the packages (express)
-// import express from express
-const express = require("express");
-const connectDatabase = require("./database/database");
-const dotenv =require("dotenv")
+//Importing the packages (express)
+const express = require('express');
+const connectDatabase = require('./database/database');
+const dotenv = require('dotenv');
+const cors = require('cors')
+//Creating an express app
+const app = express();
 
+//configure Cors policy
+corsPolicy = {
+    origin: true,
+    credentials: true,
+    optionsSuccessStatus: 204,
+
+};
+const corsOptions = {
+    origin: true,
+    credentials: true,
+    optionSuccessStatus: 200,
+
+};
+
+
+app.use(cors(corsOptions))
+
+
+//Express Json Config
+app.use(express.json())
+
+
+//dotenv Configuration
 dotenv.config()
 
-// creating an express express.application
-const app= express();
-
-//connecting to database
+//Connecting to database
 connectDatabase()
-//defining a port port range 3000-6000
+
+//Defining the port
 const PORT = process.env.PORT;
 
-// making atesting endpoint 
-// End point :POST ,GET ,PUT ,DELETE
-app.get('/test',(req,res)=>{
-    res.send("Test API is ok and working!...........")
+//Making a test endpoint
+//Endpoints: POST, GET, PUT, DELETE
+app.get('/test', (req, res) => {
+    res.send("Test API is Working!...")
 })
 
-// http://localhost:5500/test
+//http://localhost:5000/test
 
+//configuring Routes of User
+app.use('/api/user', require('./routes/userRoutes'))
 
+//http://localhost:5000/api/user//create
 
-//configuring the route of user
-app.use('/api/user',require('./routes/userRoutes'))
-// http://localhost:5500/api/user/create
-
-
-console.log(`Server  Running on port ${PORT}`)
-// starting the server
-app.listen(PORT,()=>{
-    console.log(`Server  Running on port ${PORT}`)
+//Starting the server
+app.listen(PORT, () => {
+    console.log(`Server is Running on port ${PORT}!`)
 })
