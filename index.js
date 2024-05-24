@@ -1,56 +1,55 @@
-//Importing the packages (express)
+// Importing the packages (express
+// main server point for the application. ( main file)
+
+// importing the packages. (express.)
 const express = require('express');
+// const mongoose = require('mongoose'); // connecting the database with the server.
 const connectDatabase = require('./database/database');
 const dotenv = require('dotenv');
-const cors = require('cors')
-//Creating an express app
+const cors = require('cors');
+const acceptFOrmData = require('express-fileupload')
+
+// creating an express application. 
 const app = express();
+app.use(express.json())
 
-//configure Cors policy
-corsPolicy = {
-    origin: true,
-    credentials: true,
-    optionsSuccessStatus: 204,
-
-};
+//configure cors policy
 const corsOptions = {
     origin: true,
     credentials: true,
     optionSuccessStatus: 200,
 
-};
-
-
+}
 app.use(cors(corsOptions))
 
-
-//Express Json Config
-app.use(express.json())
-
-
-//dotenv Configuration
+//dotenv configuration
 dotenv.config()
 
-//Connecting to database
+// config from data
+app.use(acceptFOrmData())
+
+//connecting to databas 
 connectDatabase()
 
-//Defining the port
+//defining the port 
 const PORT = process.env.PORT;
 
-//Making a test endpoint
-//Endpoints: POST, GET, PUT, DELETE
+//making a test endpoint. 
+// EndPoints : POST, GET, PUT, DELETE
 app.get('/test', (req, res) => {
-    res.send("Test API is Working!...")
+    res.send('Hello World, test api is working.');
 })
 
-//http://localhost:5000/test
+//http://localhost:5000/api/user/create
 
-//configuring Routes of User
+//configuring routes
 app.use('/api/user', require('./routes/userRoutes'))
+// app.use('/api/user', require('./routes/userRoutes'))
 
-//http://localhost:5000/api/user//create
+app.use('/api/product', require('./routes/productRoutes'))
 
-//Starting the server
+
+// starting the server. 
 app.listen(PORT, () => {
-    console.log(`Server is Running on port ${PORT}!`)
-})
+    console.log(`Server - app is running on port ${PORT}`);
+});

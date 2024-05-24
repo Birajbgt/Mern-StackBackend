@@ -1,87 +1,156 @@
-const userModel = require('../model/userModel')
+const userModel = require('../model/userModel');
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const createUser = async (req, res) => {
-    //1. Check incoming data
+    //Step one : Check incoming data
     console.log(req.body);
-
-    //2. Destructure the incoming data
+    //Step two : Destrucutre the incoming data (i.e., firstname,lastname,age)
     const { firstName, lastName, email, password } = req.body;
 
-    //3.Validate the data (if empty, stop the process and send res)
+    //Step three : Validate the data (Check if empty, stop the process and send response)
     if (!firstName || !lastName || !email || !password) {
-        // res.send("Please enter all fields!")
-        res.json({
+
+        // res.send("Please fill up all the given fields!");
+        //res.status(400).json()
+        return res.json({                 //in json format
             "success": false,
-            "message": "Please enter all fields!"
+            "message": "Please fill up all the given fields!"
         })
+
     }
-    //4. Error Handling (Try Catch)
+
+    //Step four :  Error Handling (Try , Catch)
     try {
-        //5. Check if the user is already registered
-        const existingUser = await userModel.findOne({ email })
-        //5.1 If the user is found: Send response
+        //Step five : Check if the user is already registered or not
+        const existingUser = await userModel.findOne({ email: email });
+
+        //Step 5.1(If User found) : Send response
+
         if (existingUser) {
             return res.json({
-                "status": false,
-                "message": "User Already Exists!"
+                "success": false,
+                "message": "User already exists!"
             })
         }
-        //5.2.1 Hash the password
-        // Hashing/Encryption of the password
+        // hashing/encryption of the password
         const randomSalt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, randomSalt)
 
-        //5.1.1 Stop the process
-        //5.2 if user is new: 
+
+        //Step 5.1.1 : Stop the process
+        //Step 5.2(If user is not registered/ is new) :
         const newUser = new userModel({
-            //Database Fields: Client's Value
-            firstName: firstName,
+            //database fields : client model
+            firstName: firstName, // given by client
             lastName: lastName,
             email: email,
-            password: hashedPassword
+            password: hashedPassword,
         })
 
+        //Step 5.2.2 : Save to Database.
+        await newUser.save();
 
-        //5.2.2 Save to the database
-        await newUser.save()
 
-        //5.2.3 Send successfull response
+        //Send the response
+
         res.json({
             "success": true,
-            "message": "User Created Successfuly!"
+            "message": " User created successfully!"
         })
+        //Step 5.2.1 : Hash the password
+
+        //Step 5.2.3 : Send Succesful response to user.
 
     } catch (error) {
         console.log(error)
         res.json({
             "success": false,
-            "message": "Internal server error"
+            "message": "Internal Server Error!"
+        })
+
+    }
+
+}
+
+//Logic for Login
+const loginUser = async (req, res) => {
+    //check incoming data
+    console.log(req.body)
+    // destructuring
+    const { email, password } = req.body;
+
+    //validation
+    if (!email || !!password) {
+        return res.json({
+            "success": false,
+            "message": "please enter all the fields."
         })
     }
 
+    //try catch
+    try {
+        // find user by email
+        const user = await userModel.findOne({ email: email })
+        // found data : first name, lastname, email, password
 
-    // res.send("Created user API is working!")
+        // not fount the email( error message saying user doesnt exist)
+        if (!user) {
+            return res.json({
+                "success": false,
+                "message": "User does not exist."
+            })
+        }
+
+        // compare the password.( using bycript)
+        const isValidPassword = await bcrypt.compare(password, user.password)
+
+        // not compare error saying password is incorrect.
+        if (!isValidPassword) {
+            return res.json({
+                "success": false,
+                "message": "Invalid password"
+            })
+        }
+        //token ( generate - userdata + KEY)
+        const token = await jwt.sign(
+            { id: user._id }, process.env.JWT_SECRET
+        )
+
+        // sending the response ( token, user data,)
+        res.json({
+            "success": true,
+            "message": "user logined successfull",
+            "token": token,
+            "userData": user,
+        })
+
+    } catch (error) {
+        console.log(error)
+        return res.json({
+            "success": false,
+            "message": "Internal server error."
+        })
+    }
+
 }
 
-//Write a logic for login
-//1. Check incoming data
-//2. Destructure the incoming data
-//3. Validate the data
-//4. Error Handling (Try Catch)
-//5. Check if the user is already registered
-//5.1 If the user is already registered: 
-//5.1.1 Validate the user credentials
-//5.1.2 If the password matches: Send user to the home screen
-//5.1.3 If the password doesn't match: Send error message
+//Step one : Check incoming data
+//Step two : Destrucutre the incoming data (i.e., firstname,lastname,age)
+//Step three : Validate the data.
+//Step four : Verify the credential
+//Step 4.1 (If the credential match) : Send succesfull message to user
+//Step 4.1.1 : Stop the process
+//Step 4.2 (If credentials does not match ):
+//Step 4.2.2 : Find the user
+//Step
 
-//5.2 if user is new: 
-//5.2.1 Send user to the registration page
 
-//login route
-//change password
+// login route
+// change password
 
-//exporting
+// exporting
 module.exports = {
-    createUser
+    createUser,
+    loginUser
 }
