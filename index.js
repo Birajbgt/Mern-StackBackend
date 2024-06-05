@@ -27,11 +27,13 @@ dotenv.config()
 
 // config from data
 app.use(acceptFOrmData())
+// make static form data 
+app.use(express.static('./public'));
 
-//connecting to databas 
+//connecting to  databas 
 connectDatabase()
 
-//defining the port 
+//defining the port  
 const PORT = process.env.PORT;
 
 //making a test endpoint. 

@@ -19,11 +19,11 @@ const mongoose = require('mongoose')
 // Export
 
 const connectDatabase = () => {
-    mongoose.connect(process.env.MONGODB_CLOUD).then(() => {
+    mongoose.connect(process.env.MONGODB_LOCAL).then(() => {
         console.log("Database connected!")
     })
 }
 
 //Exporting the function
 
-module.exports = connectDatabase
+module.exports = connectDatabase 

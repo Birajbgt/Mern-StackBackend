@@ -46,7 +46,7 @@ const createUser = async (req, res) => {
             lastName: lastName,
             email: email,
             password: hashedPassword,
-        })
+        });
 
         //Step 5.2.2 : Save to Database.
         await newUser.save();
@@ -81,10 +81,10 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     //validation
-    if (!email || !!password) {
+    if (!email || !password) {
         return res.json({
             "success": false,
-            "message": "please enter all the fields."
+            "message": "Please enter all fields!"
         })
     }
 
@@ -114,7 +114,8 @@ const loginUser = async (req, res) => {
         }
         //token ( generate - userdata + KEY)
         const token = await jwt.sign(
-            { id: user._id }, process.env.JWT_SECRET
+            { id: user._id },
+            process.env.JWT_SECRET
         )
 
         // sending the response ( token, user data,)
