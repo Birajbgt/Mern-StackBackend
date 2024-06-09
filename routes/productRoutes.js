@@ -1,10 +1,11 @@
 const router = require('express').Router();
-const productController = require('../controller/productController')
+const productController = require('../controller/productController');
+const { authGuard } = require('../middleware/auth');
 
 router.post('/create', productController.createProduct)
 
 // fetch all products
-router.get('/get_all_products', productController.getAllProducts)
+router.get('/get_all_products', authGuard, productController.getAllProducts)
 
 // single product 
 router.get('/get_single_product/:id', productController.getSingleProduct)
